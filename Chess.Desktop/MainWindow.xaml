@@ -1,0 +1,16 @@
+﻿<Window x:Class="Chess.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Chess.Desktop"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="297" Width="478">
+    <Grid Height="279" VerticalAlignment="Top">
+
+        <Button x:Name="buttonNewGame" Click="RunGame_Click" Content="Новая игра" Margin="136,10,161,231" Background="#FFDDDDDD" FontFamily="Bahnschrift SemiBold" />
+        <Button x:Name="buttonContinue" Content="Продолжить" Click="Continue_Click" Margin="136,53,161,185" FontFamily="Bahnschrift SemiBold" />
+        <Button x:Name="buttonExit" Content="Выйти" Click="Exit_Click" Margin="136,99,161,138" FontFamily="Bahnschrift SemiBold"/>
+
+    </Grid>
+</Window>
