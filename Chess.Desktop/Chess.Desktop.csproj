@@ -6,4 +6,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Chess.Logic\Chess.Logic.csproj" />
+  </ItemGroup>
+
 </Project>

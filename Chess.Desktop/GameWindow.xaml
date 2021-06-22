@@ -5,15 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Chess.Desktop"
         mc:Ignorable="d"
-        Title="GameWindow" Height="635" Width="620">
-    <Grid Margin="0,0,0,-6">
-        <Canvas x:Name="chessField" Margin="22,20,21,20" Background="AliceBlue">
-            
-            
-        </Canvas>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-      
+        Title="GameWindow" Height="634" Width="720">
+    <Grid Margin="0,0,10,5">
+        <Canvas x:Name="chessField" Margin="10,10,95,0" Background="AliceBlue"/>
+        <StackPanel Orientation="Vertical" FlowDirection="RightToLeft" Margin="565,37,0,27">
+            <Button x:Name="Save"  Content="Сохранить и выйти" Width="121" Height="50" Click="Save_Click"/>
+            <Label x:Name="textLabel" TextBlock.TextAlignment="Left" RenderTransformOrigin="0.5,0.5" Height="227" Width="82">
+                <Label.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-0.209"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Label.RenderTransform>
+            </Label>
+        </StackPanel>
     </Grid>
 </Window>

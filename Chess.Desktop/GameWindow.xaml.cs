@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Chess.Logic;
+using Figure = Chess.Logic.Figure;
 
 namespace Chess.Desktop
 {
@@ -20,15 +24,66 @@ namespace Chess.Desktop
         private SolidColorBrush currentSquareColor = Brushes.White;
         private const double widthSquare = 70;
         private const double heightSquare = 70;
+        private Game currentGame;
+        private Field field;
+        private Figure currentFigure;
 
-        private string figures = "RKBQLBKRPPPPPPPP        PPPPPPPPRKBLQBKR";
 
-        public GameWindow()
+        public GameWindow(Game currentGame)
         {
             InitializeComponent();
-            Show();
+            this.currentGame = currentGame; 
+            field = currentGame.ChessField;
             Draw();
-            Example();
+        }
+
+
+        private void DrawFiguresOnField()
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                for (var j = 0; j < 8; j++)
+                {
+                    if (field.Figures[i, j] != null)
+                        DrawOneFigure(field.Figures[i, j], i, j); 
+                }
+            }
+        }
+
+        private void DrawOneFigure(Figure figure, int i, int j)
+        {
+            Border myBorder = new Border();           
+            myBorder.Height = heightSquare;
+            myBorder.Width = widthSquare;
+            BitmapImage currentImage = new BitmapImage(DrawImage(figure.Name));
+            ImageBrush myCurrentImage = new ImageBrush(currentImage);
+            myBorder.Background = myCurrentImage;
+            myBorder.MouseDown += ClickedOnFigure;
+
+            Canvas.SetLeft(myBorder, heightSquare * j);
+            Canvas.SetRight(myBorder, widthSquare * i);
+            Canvas.SetTop(myBorder, widthSquare * i);
+            chessField.Children.Add(myBorder);
+        }
+
+        private Uri DrawImage(char name)
+        {
+            return name switch
+            {
+                'b' => new Uri(@"..\..\..\Pictures\black_bishop.png.", UriKind.Relative),
+                'r' => new Uri(@"..\..\..\Pictures\black_rook.png.", UriKind.Relative),
+                'k' => new Uri(@"..\..\..\Pictures\black_knight.png.", UriKind.Relative),
+                'q' => new Uri(@"..\..\..\Pictures\black_queen.png.", UriKind.Relative),
+                'l' => new Uri(@"..\..\..\Pictures\black_king.png.", UriKind.Relative),
+                'p' => new Uri(@"..\..\..\Pictures\black_pawn.png.", UriKind.Relative),
+                'B' => new Uri(@"..\..\..\Pictures\white_bishop.png.", UriKind.Relative),
+                'R' => new Uri(@"..\..\..\Pictures\white_rook.png.", UriKind.Relative),
+                'K' => new Uri(@"..\..\..\Pictures\white_knight.png.", UriKind.Relative),
+                'Q' => new Uri(@"..\..\..\Pictures\white_queen.png.", UriKind.Relative),
+                'L' => new Uri(@"..\..\..\Pictures\white_king.png.", UriKind.Relative),
+                'P' => new Uri(@"..\..\..\Pictures\white_pawn.png.", UriKind.Relative),
+                _ => throw new Exception("Error"),
+            };
         }
 
         private void Draw()
@@ -37,42 +92,23 @@ namespace Chess.Desktop
             {
                 for (var j = 0; j < 8; j++)
                 {
-
-
                     Rectangle square = new Rectangle();
                     square.Width = widthSquare;
                     square.Height = heightSquare;
                     square.Fill = currentSquareColor;
-                    //Border bd = new Border();
-                    //bd.Width = widthSquare;
-                    //bd.Height = heightSquare;
-
-                    //var text = new TextBlock();
-                    //text.Text = "Kolya";
-                    //text.VerticalAlignment = VerticalAlignment.Center;
-                    //text.TextAlignment = TextAlignment.Center;
-                    //bd.Child = text;
-                    BitmapImage the = new BitmapImage(new Uri(@"../../../black_bishop.jpg", UriKind.Relative));
-                    ImageBrush myimage = new ImageBrush(the);
-                    square.Fill = myimage;
                     ChangeColor();
                     square.Stroke = Brushes.Black;
-                    square.MouseUp += Clicked;
+                    square.MouseDown += ClickedOnSpace;
                     Canvas.SetLeft(square, heightSquare * j);
                     Canvas.SetRight(square, widthSquare * i);
                     Canvas.SetTop(square, widthSquare * i);
-                    //Canvas.SetLeft(bd, heightSquare * j);
-                    //Canvas.SetRight(bd, widthSquare * i);
-                    //Canvas.SetTop(bd, widthSquare * i);
                     chessField.Children.Add(square);
-                    Figure figure = new Figure();
-                    //chessField.Children.Add(bd);
-
-
-
                 }
                 ChangeColor();
             }
+
+            DrawFiguresOnField();
+            WriteCurrentPlayerSide();
         }
 
         private void ChangeColor()
@@ -80,38 +116,72 @@ namespace Chess.Desktop
             currentSquareColor = currentSquareColor == Brushes.Gray ? Brushes.White : Brushes.Gray;
         }
 
-        private void Clicked(object sender, MouseButtonEventArgs e)
+        private void ClickedOnSpace(object sender, MouseButtonEventArgs e)
         {
-            var sq = (Rectangle)sender;
-            sq.Fill = Brushes.Red;
-            var index = chessField.Children.IndexOf((Rectangle)sender);
+            if (currentFigure != null)
+            {
+                var point = e.GetPosition(this);
+                var x = (int)point.X / 70;
+                var y = (int)point.Y / 70;
+                if (currentFigure.CanMove(x, y))
+                {
+                    field.Move(currentFigure, x, y);
+                    if (currentGame.IsWin())
+                        this.Close();
+                    currentGame.ChangePlayer();
+                    chessField.Children.Clear();
+                    currentFigure = null;
+                    Draw();
+                }                
+            }           
         }
 
-        private void DrawFigures()
+        private void WriteCurrentPlayerSide()
         {
+            textLabel.Content = currentGame.currentPlayer.PlayerSide == Side.White ? "Ходят белые" : "Ходят чёрные";
+        }
+
+        private void ClickedOnFigure(object sender, MouseButtonEventArgs e)
+        {
+            var point = e.GetPosition(this);
+            var x = (int)point.X / 70;
+            var y = (int)point.Y / 70;
+            if (currentFigure != null && currentFigure.Side == currentGame.currentPlayer.PlayerSide)
+                TryKill(field.Figures[y, x]);
+            else if (currentFigure != null || field.Figures[y, x].Side == currentGame.currentPlayer.PlayerSide)
+            {
+                currentFigure = field.Figures[y, x];
+                if (currentFigure != null)
+                    currentFigure.CurrentCoordinate = new Coordinate(x, y);
+            }               
+        }
+
+        private void TryKill(Figure figure)
+        {
+            if (figure.Side != currentGame.currentPlayer.PlayerSide)
+            {
+                field.Kill(figure);
+                field.Move(currentFigure, figure.CurrentCoordinate.X, figure.CurrentCoordinate.Y);
+                if (currentGame.IsWin())
+                    this.Close();
+                Draw();
+            }
+                
 
         }
 
-        private void Example()
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
-            Border bd = new Border();
-            bd.Width = widthSquare;
-            bd.Height = heightSquare;
-            BitmapImage the = new BitmapImage(new Uri(@"../../../imgw.jpg", UriKind.Relative));
-            ImageBrush myimage = new ImageBrush(the);
-            chessField.Background = myimage;
+            string info = currentGame.SaveGame();
 
-            //var text = new TextBlock();
-            //text.Text = "Kolya";
-            //text.VerticalAlignment = VerticalAlignment.Center;
-            //text.TextAlignment = TextAlignment.Center;
+            File.Delete("GameInfo.dat");
+            BinaryWriter binaryWriter = new BinaryWriter(File.Open("GameInfo.dat", FileMode.OpenOrCreate));
+            binaryWriter.Write(info);
+            binaryWriter.Close();
 
-            //Figure figure = new Figure();
-
-            //bd.Child = text;
-            ////bd.Child = figure;
-            //bd.MouseUp += Clicked;
-            //chessField.Children.Add(bd);
+            MainWindow menu = new MainWindow();
+            menu.Show();
+            Close();
         }
     }
 }

@@ -19,3 +19,6 @@ C:\Users\rassv\source\repos\Chess\Chess.Desktop\obj\Debug\netcoreapp3.1\Chess.De
 C:\Users\rassv\source\repos\Chess\Chess.Desktop\obj\Debug\netcoreapp3.1\Chess.Desktop.genruntimeconfig.cache
 C:\Users\rassv\source\repos\Chess\Chess.Desktop\obj\Debug\netcoreapp3.1\GameWindow.g.cs
 C:\Users\rassv\source\repos\Chess\Chess.Desktop\obj\Debug\netcoreapp3.1\GameWindow.baml
+C:\Users\rassv\source\repos\Chess\Chess.Desktop\bin\Debug\netcoreapp3.1\Chess.Logic.dll
+C:\Users\rassv\source\repos\Chess\Chess.Desktop\bin\Debug\netcoreapp3.1\Chess.Logic.pdb
+C:\Users\rassv\source\repos\Chess\Chess.Desktop\obj\Debug\netcoreapp3.1\Chess.Desktop.csproj.CopyComplete
