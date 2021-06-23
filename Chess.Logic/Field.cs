@@ -6,7 +6,7 @@ namespace Chess.Logic
 {
     public class Field
     {
-        public Figure[,] Figures; 
+        public Figure[,] Figures { get; set; } 
         
         public Field()
         {
